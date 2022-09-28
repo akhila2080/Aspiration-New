@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"unicode"
 )
 
 // Interface StringMapper contains two functions. THis interface can be implemented to apply any
@@ -26,7 +27,7 @@ type CapitalizeEveryThirdAlphanumericCharMapper struct {
 func main() {
 	str := NewCapitalizeEveryThirdAlphanumericCharMapper(3, "Aspiration.com")
 	MapString(&str)
-	fmt.Println(string(str.Output))
+	fmt.Println(str)
 }
 
 // NewEntity is used to build initial payload of an Input model.
@@ -55,16 +56,16 @@ func (str *CapitalizeEveryThirdAlphanumericCharMapper) TransformRune(pos int) {
 		return
 	}
 	charAtPosition := rune(str.Entity[pos])
-	if !isAlphanumeric(charAtPosition) {
+	if !(unicode.IsLetter(charAtPosition) || unicode.IsDigit(charAtPosition)) {
 		str.Output[pos] = charAtPosition
 		return
 	}
 
 	// if rune is at required interval, capitalize the rune.
 	if str.Counter%str.Intervl == 0 {
-		str.Output[pos] = toUpper(charAtPosition)
+		str.Output[pos] = unicode.ToUpper(charAtPosition)
 	} else {
-		str.Output[pos] = toLower(charAtPosition)
+		str.Output[pos] = unicode.ToLower(charAtPosition)
 	}
 
 	// increase the counter value.
@@ -76,23 +77,7 @@ func (str *CapitalizeEveryThirdAlphanumericCharMapper) GetValueAsRuneSlice() []r
 	return []rune(str.Entity)
 }
 
-// isAlphanumeric returns true if character belongs to the set of alphanumeric characters ([a-z,A-Z,0-9])
-func isAlphanumeric(character rune) bool {
-	return (character >= '0' && character <= '9') || (character >= 'A' && character <= 'Z') || (character >= 'a' && character <= 'z')
-}
-
-// toUpper converts any alphanumeric rune to its upper case form
-func toUpper(character rune) rune {
-	if character >= 'a' && character <= 'z' {
-		return character - 'a' + 'A'
-	}
-	return character
-}
-
-// toLower converts any alphanumeric rune to its lower case form
-func toLower(character rune) rune {
-	if character >= 'A' && character <= 'Z' {
-		return character - 'A' + 'a'
-	}
-	return character
+// Implementation of Stringer interface to pretty print the CapitalizeEveryThirdAlphanumericCharMapper object
+func (str CapitalizeEveryThirdAlphanumericCharMapper) String() string {
+	return string(str.Output)
 }
